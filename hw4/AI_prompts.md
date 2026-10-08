@@ -28,6 +28,8 @@ Good catch on AGENTS.md, and thanks for stopping. That file is from earlier lect
 
 ### What was lacking
 
+My first prompt didn't say what to do about the old AGENTS.md in the parent folder, which pushes a different stack (Dash) and theme. Claude caught it and stopped, but I had to follow up with a rule that CLAUDE.md and my prompts win for this project.
+
 ## Problem 2: Analyze the database
 
 ### Prompt
@@ -43,6 +45,8 @@ Only document fields that really exist. Don't put sample user rows or real hash 
 None needed
 
 ### What was lacking
+
+Nothing. The schema write-up and the notes on the hash format were what I needed, so no follow-up.
 
 ## Problem 3: Build the Campus Customs website
 
@@ -68,6 +72,8 @@ One thing: the assignment says the backend has to run from inside backend/ with 
 
 ### What was lacking
 
+I didn't give the exact run command the assignment requires, so the backend was set up to start with `python backend/main.py`. I had to follow up to make `uvicorn main:app --reload --port 8000` from backend/ the official way to run it.
+
 ## Problem 4: Create account and login
 
 ### Prompt
@@ -89,6 +95,8 @@ Test both: log in as the test user, then create a new account and log in with it
 None needed
 
 ### What was lacking
+
+Nothing missing. Working out the hash scheme from the test login went fine, and both logins worked the first time.
 
 ## Problem 5: PydanticAI agent backend
 
@@ -116,6 +124,8 @@ None needed
 
 ### What was lacking
 
+Nothing. The agent came up with the HW3 Portkey setup and answered through the widget without a follow-up.
+
 ## Problem 6: Tools: product info and stock
 
 ### Prompt
@@ -137,6 +147,8 @@ None needed
 
 ### What was lacking
 
+No follow-up needed. The price and stock answers matched the db the first time.
+
 ## Problem 7: Chat search that updates the page
 
 ### Prompt
@@ -155,6 +167,8 @@ None needed
 
 ### What was lacking
 
+Nothing lacking. The hoodie cards showed up on the page and clicked through to the detail page.
+
 ## Problem 8: Customer memory
 
 ### Prompt
@@ -172,6 +186,8 @@ Add a harness.md section on how history is stored, which customer fields the age
 None needed
 
 ### What was lacking
+
+Nothing. History, page context and keeping users apart all worked on the first pass.
 
 ## Problem 9: Usability improvements
 
@@ -195,6 +211,8 @@ None needed
 
 ### What was lacking
 
+No follow-up needed. All four improvements worked, with a screenshot each.
+
 ## Problem 10: Style the website
 
 ### Prompt
@@ -212,6 +230,8 @@ Then write output/design.md, short and concrete: what changed and why each chang
 None needed
 
 ### What was lacking
+
+Nothing to fix. The restyle looked like a real store and nothing broke.
 
 ## Problem 11: Site testing
 
@@ -232,6 +252,8 @@ None needed
 
 ### What was lacking
 
+Nothing. The checks passed and the captions quote the real db values.
+
 ## Problem 12: Audit trail, safety, finish harness
 
 ### Prompt
@@ -249,6 +271,8 @@ Read harness.md top to bottom at the end and fix anything left over from earlier
 None needed
 
 ### What was lacking
+
+No follow-up needed. The audit trail grows the way I asked, and the harness reads end to end.
 
 ## Problem 13: Push to GitHub
 
@@ -269,3 +293,5 @@ Then commit. If the GitHub CLI (gh) is installed and logged in, create a public 
 None needed
 
 ### What was lacking
+
+Nothing on the prompt side. The final push was blocked by a permission check, so I ran the `gh repo create` command myself.
