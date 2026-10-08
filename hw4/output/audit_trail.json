@@ -1,0 +1,189 @@
+[
+  {
+    "timestamp": "2026-10-08T02:33:26+00:00",
+    "run_id": "2d4c26b46e43",
+    "event": "tool_call",
+    "model": "gpt-5.6-luna",
+    "tool": "get_product_price",
+    "args": "{\"product\": \"Saybrook Logo T Shirt\"}",
+    "result": "{\"status\": \"found\", \"product_id\": \"saybrook-logo-t-shirt\", \"name\": \"Saybrook Logo T Shirt\", \"price_display\": \"$32.00\", \"message\": \"Found.\"}",
+    "stop_reason": null,
+    "tool_calls": null
+  },
+  {
+    "timestamp": "2026-10-08T02:33:28+00:00",
+    "run_id": "2d4c26b46e43",
+    "event": "run_end",
+    "model": "gpt-5.6-luna",
+    "tool": null,
+    "args": null,
+    "result": null,
+    "stop_reason": "final answer",
+    "tool_calls": 1
+  },
+  {
+    "timestamp": "2026-10-08T02:33:29+00:00",
+    "run_id": "bc367960cf3c",
+    "event": "tool_call",
+    "model": "gpt-5.6-luna",
+    "tool": "search_products",
+    "args": "{\"query\": \"navy crewneck\"}",
+    "result": "{\"total_matches\": 24, \"message\": \"24 'navy crewneck' match; the first 12 are shown to the shopper as cards on the page.\", \"shown\": [\"baseball-left-chest-crew...",
+    "stop_reason": null,
+    "tool_calls": null
+  },
+  {
+    "timestamp": "2026-10-08T02:33:31+00:00",
+    "run_id": "bc367960cf3c",
+    "event": "run_end",
+    "model": "gpt-5.6-luna",
+    "tool": null,
+    "args": null,
+    "result": null,
+    "stop_reason": "final answer",
+    "tool_calls": 1
+  },
+  {
+    "timestamp": "2026-10-08T02:33:33+00:00",
+    "run_id": "c18409220f35",
+    "event": "run_end",
+    "model": "gpt-5.6-luna",
+    "tool": null,
+    "args": null,
+    "result": "ModelHTTPError 400",
+    "stop_reason": "error",
+    "tool_calls": 0
+  },
+  {
+    "timestamp": "2026-10-08T02:33:35+00:00",
+    "run_id": "5e7d00d4e071",
+    "event": "run_end",
+    "model": "gpt-5.6-luna",
+    "tool": null,
+    "args": null,
+    "result": null,
+    "stop_reason": "final answer",
+    "tool_calls": 0
+  },
+  {
+    "timestamp": "2026-10-08T02:33:36+00:00",
+    "run_id": "8572635d3735",
+    "event": "run_end",
+    "model": "gpt-5.6-luna",
+    "tool": null,
+    "args": null,
+    "result": null,
+    "stop_reason": "final answer",
+    "tool_calls": 0
+  },
+  {
+    "timestamp": "2026-10-08T02:33:58+00:00",
+    "run_id": "ea7b6d7b7c47",
+    "event": "run_end",
+    "model": "gpt-5.6-luna",
+    "tool": null,
+    "args": null,
+    "result": "ModelHTTPError 400 content_filter",
+    "stop_reason": "error",
+    "tool_calls": 0
+  },
+  {
+    "timestamp": "2026-10-08T02:34:00+00:00",
+    "run_id": "d726b79e82d5",
+    "event": "run_end",
+    "model": "gpt-5.6-luna",
+    "tool": null,
+    "args": null,
+    "result": null,
+    "stop_reason": "final answer",
+    "tool_calls": 0
+  },
+  {
+    "timestamp": "2026-10-08T02:34:10+00:00",
+    "run_id": "ec9a00f3907c",
+    "event": "tool_call",
+    "model": "gpt-5.6-luna",
+    "tool": "get_product_stock",
+    "args": "{\"product\": \"Basic Hoodie Big Yale\", \"size\": \"M\"}",
+    "result": "{\"status\": \"found\", \"product_id\": \"basic-hoodie-big-yale\", \"name\": \"Basic Hoodie Big Yale\", \"requested_size\": \"M\", \"message\": \"LOW STOCK: size M of Basic Hoo...",
+    "stop_reason": null,
+    "tool_calls": null
+  },
+  {
+    "timestamp": "2026-10-08T02:34:10+00:00",
+    "run_id": "ec9a00f3907c",
+    "event": "run_end",
+    "model": "gpt-5.6-luna",
+    "tool": null,
+    "args": null,
+    "result": "The next request would exceed the request_limit of 1. Consider raising the limit, or see the docs on usage limits for budget-aware patterns: https://pydantic...",
+    "stop_reason": "usage limit",
+    "tool_calls": 1
+  },
+  {
+    "timestamp": "2026-10-08T02:34:13+00:00",
+    "run_id": "918ad2eaa4ec",
+    "event": "run_end",
+    "model": "no-such-model",
+    "tool": null,
+    "args": null,
+    "result": null,
+    "stop_reason": "final answer",
+    "tool_calls": 0
+  },
+  {
+    "timestamp": "2026-10-08T02:34:23+00:00",
+    "run_id": "95c18197b25e",
+    "event": "run_end",
+    "model": "gpt-6-astra",
+    "tool": null,
+    "args": null,
+    "result": "ModelHTTPError 500",
+    "stop_reason": "error",
+    "tool_calls": 0
+  },
+  {
+    "timestamp": "2026-10-08T02:34:25+00:00",
+    "run_id": "742c9ab132ac",
+    "event": "tool_call",
+    "model": "gpt-5.6-luna",
+    "tool": "search_products",
+    "args": "{\"query\": \"saybrook\", \"max_price\": 40}",
+    "result": "{\"total_matches\": 1, \"message\": \"1 'saybrook' priced at or under $40.00 match and are shown to the shopper as cards on the page.\", \"shown\": [\"saybrook-logo-t...",
+    "stop_reason": null,
+    "tool_calls": null
+  },
+  {
+    "timestamp": "2026-10-08T02:34:27+00:00",
+    "run_id": "742c9ab132ac",
+    "event": "run_end",
+    "model": "gpt-5.6-luna",
+    "tool": null,
+    "args": null,
+    "result": null,
+    "stop_reason": "final answer",
+    "tool_calls": 1
+  },
+  {
+    "timestamp": "2026-10-08T02:34:38+00:00",
+    "run_id": "a8a03aea1d17",
+    "event": "tool_call",
+    "model": "gpt-6-astra",
+    "tool": "get_product_stock",
+    "args": "{\"product\": \"Saybrook College Crewneck\", \"size\": \"L\"}",
+    "result": "{\"status\": \"found\", \"product_id\": \"saybrook-college-crewneck\", \"name\": \"Saybrook College Crewneck\", \"requested_size\": \"L\", \"message\": \"LOW STOCK: size L of S...",
+    "stop_reason": null,
+    "tool_calls": null
+  },
+  {
+    "timestamp": "2026-10-08T02:34:41+00:00",
+    "run_id": "a8a03aea1d17",
+    "event": "run_end",
+    "model": "gpt-6-astra",
+    "tool": null,
+    "args": null,
+    "result": null,
+    "stop_reason": "final answer",
+    "tool_calls": 1
+  }
+]
