@@ -151,3 +151,7 @@ class AuditEntry(BaseModel):
     result: str | None = None
     stop_reason: Literal["final answer", "usage limit", "error"] | None = None
     tool_calls: int | None = None
+    requests: int | None = None  # model requests in the run (run_end only)
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    total_tokens: int | None = None

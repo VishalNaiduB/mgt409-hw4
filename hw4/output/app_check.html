@@ -23,25 +23,25 @@
 <body>
 <header>
   <h1>Campus Customs: live site check</h1>
-  <p>Playwright run on 2026-10-07 22:32 against the running site (React + Vite on :5173, FastAPI on :8000). Database values were read from data/campus_customs.db.</p>
+  <p>Playwright run on 2026-10-07 23:01 against the running site (React + Vite on :5173, FastAPI on :8000). Database values were read from data/campus_customs.db.</p>
 </header>
 <main>
     <section>
       <h2>1. The chat answers an inventory question honestly <span class="tag pass">PASS</span></h2>
-      <p class="caption">On the Trumbull 1 4 Zip page the shopper asked about medium. The chat said 12 in stock at $72.00. The database agrees: size M: 12 left in the inventory table, and $72.00 in the catalogue table.</p>
-      <p class="qa"><strong>Shopper:</strong> How many of these do you have in medium, and how much is it?<br><strong>Chat:</strong> We have 12 in medium, and it’s $72.00. Yale blue, Yale true!</p>
+      <p class="caption">On the Trumbull 1 4 Zip page the shopper asked about medium. The chat said 12 in stock at $72.00, and the M tile in the size list next to it shows &quot;M IN STOCK · 12&quot;. The database agrees: size M: 12 left in the inventory table, and $72.00 in the catalogue table.</p>
+      <p class="qa"><strong>Shopper:</strong> How many of these do you have in medium, and how much is it?<br><strong>Chat:</strong> The Trumbull 1 4 Zip has 12 available in medium, and it’s $72.00.</p>
       <img src="app_check_images/inventory.png" alt="1. The chat answers an inventory question honestly">
     </section>
     <section>
       <h2>2. Product cards appear on the page after a category question <span class="tag pass">PASS</span></h2>
       <p class="caption">Asking for hoodies put 12 product cards on the Home page, out of 27 catalogue rows that mention &quot;hoodie&quot; in name, garment type, tags or description. Every card&#x27;s price matches the catalogue table (e.g. Basic Hoodie Big Yale $68.00). Clicking the first card opened its detail page (/products/basic-hoodie-big-yale).</p>
-      <p class="qa"><strong>Shopper:</strong> What hoodies do you have?<br><strong>Chat:</strong> We have 27 hoodies; 12 are shown here. Highlights include:<br><br>- Basic Hoodie Big Yale — $68.00<br>- Brooks Brothers Double Knit Full Zip Hoodie Yale — $88.00<br>- Champion Reverse Weave Hoodie 1 — $68.00<br>- District Vit Hoodie Vintage Bulldog — $68.00<br><br>Click a card to see details, or narrow it down by colour, style or college.</p>
+      <p class="qa"><strong>Shopper:</strong> What hoodies do you have?<br><strong>Chat:</strong> We found 27 hoodies; 12 are shown here. Highlights include Basic Hoodie Big Yale, Champion Reverse Weave Hoodie 1 and District Vit Hoodie Vintage Bulldog, with prices from $68.00 to $88.00.<br><br>Click a card for details, or narrow it down by colour, style or college.</p>
       <img src="app_check_images/search_cards.png" alt="2. Product cards appear on the page after a category question">
     </section>
     <section>
       <h2>3. Problem 9 feature: sold-out size leads to in-stock alternatives, with stock badges <span class="tag pass">PASS</span></h2>
       <p class="caption">Baseball Left Chest Crewneck has XL: 0 in the inventory table, so the chat says it is sold out. It then calls find_similar_items, which shows only alternatives with XL in stock (inventory table: Davenport College Crewneck XL: 20, Squash Left Chest Tennis XL: 5, Yale Cousin Crewneck XL: 15, Hype And Vice Yale University Offside Crewneck XL: 20). The cards carry the per-size stock patches: blue in stock, gold low, grey crossed out sold out.</p>
-      <p class="qa"><strong>Shopper:</strong> Do you have this in XL?<br><strong>Chat:</strong> XL is sold out in the Baseball Left Chest Crewneck. In-stock XL alternatives include:<br><br>- Davenport College Crewneck — $58.00, 20 available<br>- Squash Left Chest Tennis — $58.00, 5 available<br>- Yale Cousin Crewneck — $58.00, 15 available<br>- Hype And Vice Yale University Offside Crewneck — $58.00, 20 available<br><br>They’re shown as cards—take a look!</p>
+      <p class="qa"><strong>Shopper:</strong> Do you have this in XL?<br><strong>Chat:</strong> XL is sold out in the Baseball Left Chest Crewneck. Other XL options are available:<br><br>- Davenport College Crewneck — $58.00, 20 in stock<br>- Squash Left Chest Tennis — $58.00, 5 in stock<br>- Yale Cousin Crewneck — $58.00, 15 in stock<br>- Hype And Vice Yale University Offside Crewneck — $58.00, 20 in stock<br><br>They’re shown as cards—click one to take a closer look.</p>
       <img src="app_check_images/sold_out_alternatives.png" alt="3. Problem 9 feature: sold-out size leads to in-stock alternatives, with stock badges">
     </section>
 </main>

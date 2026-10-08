@@ -21,7 +21,7 @@ from pydantic_ai.messages import (ModelMessage, ModelRequest, ModelResponse, Ret
                                   ToolReturnPart, UserPromptPart)
 from pydantic_ai.models.openai import OpenAIChatModel, OpenAIResponsesModel
 from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai.usage import UsageLimits
+from pydantic_ai.usage import RunUsage, UsageLimits
 
 import tools
 from models import AgentDeps, AuditEntry
@@ -202,6 +202,7 @@ async def _run_once(message: str, deps: AgentDeps, model_name: str, history: lis
     limits = UsageLimits(request_limit=MAX_REQUESTS, tool_calls_limit=MAX_TOOL_CALLS)
     run_id = uuid.uuid4().hex[:12]
     messages: list[ModelMessage] = []
+    usage: RunUsage | None = None
     stop, detail, reply = "error", None, None
     try:
         async with agent.iter(message, deps=deps, model=chat_model(model_name), usage_limits=limits,
@@ -211,6 +212,7 @@ async def _run_once(message: str, deps: AgentDeps, model_name: str, history: lis
                     pass
             finally:
                 messages = run.new_messages()
+                usage = run.usage
             reply = run.result.output
         stop = "final answer"
     except UsageLimitExceeded as exc:
@@ -230,8 +232,12 @@ async def _run_once(message: str, deps: AgentDeps, model_name: str, history: lis
         tool_entries = _tool_entries(messages, run_id, model_name)
         for e in tool_entries:
             print(f"[tool] {e.tool}({e.args}) -> {e.result}", flush=True)
+        tokens = {} if usage is None else {"requests": usage.requests, "input_tokens": usage.input_tokens,
+                                           "output_tokens": usage.output_tokens, "total_tokens": usage.total_tokens}
+        print(f"[agent] run {run_id} {model_name} {stop}: {tokens}", flush=True)
         append_audit(tool_entries + [AuditEntry(timestamp=_now(), run_id=run_id, event="run_end", model=model_name,
-                                                stop_reason=stop, result=detail, tool_calls=len(tool_entries))])
+                                                stop_reason=stop, result=detail, tool_calls=len(tool_entries),
+                                                **tokens)])
     return reply
 
 

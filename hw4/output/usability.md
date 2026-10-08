@@ -53,13 +53,20 @@ Four improvements to the Campus Customs shop: two on the frontend and two in the
 - A small router in `agent.py` picks the model before each run.
   - **Simple lookups** go to `gpt-5.6-luna`: one product's price or stock, greetings, single searches.
   - **Harder multi-step questions** go to `gpt-6-astra`: comparisons, recommendations, gift ideas, alternatives, or a message combining several constraints like budget, size and colour.
-- Every bot reply shows a small "answered by <model>" tag.
-- The model is saved with each reply in a new `model` column on `chat_messages`, added at backend startup if missing. The tag still shows after a reload.
+- Each reply records which model answered:
+  - saved in a new `model` column on `chat_messages` (added at backend startup if missing),
+  - logged with its token usage in `output/audit_trail.json`.
+- **The "answered by <model>" tag under each bot reply is for development only.** It shows when the site runs on the Vite dev server (`npm run dev`), which is where the screenshots below were taken. It's left out of production builds (`import.meta.env.DEV`), so real shoppers don't see it.
 
-**Why it helps**
-- Most shop questions are simple lookups, so they get the faster, cheaper model and shoppers wait less.
-- The stronger model is saved for questions that need more reasoning, which keeps costs down without hurting quality where it matters.
-- The visible tag makes the routing easy to check and to explain to graders and the shop owner.
+**Why it helps, and what the logs show**
+- **Routing sends most questions to luna.** Of the 8 real chats run through the UI with token logging, 7 went to gpt-5.6-luna (searches, stock, description and a sold-out-alternatives question). 1, a price comparison, went to gpt-6-astra.
+- **No token saving is measured.**
+  - The luna runs used 3,916 to 6,771 total tokens.
+  - The single-lookup luna runs averaged about 4,240.
+  - The astra comparison used 3,816.
+
+  The logs don't show astra using more tokens per run, so we don't claim a token saving. Any cost or speed benefit would come from luna's lower per-token price or latency, which these logs don't measure.
+- **What it does give us:** a clear, logged decision about which model handled each question. The "answered by" tag in development makes that easy to check while testing.
 
 ## Screenshots
 
@@ -81,4 +88,4 @@ Baseball Left Chest Crewneck. The inventory table has XS 0, S 15, M 5, L 25, XL 
 ### Model routing tag
 ![Answered by tag](app_check_images/usability_model_routing.png)
 
-A single price lookup was answered by `gpt-5.6-luna`. A price comparison of two products was routed to `gpt-6-astra` ($68.00 vs $88.00, which matches the catalogue).
+Taken on the dev server, where the tag is shown. A single price lookup was answered by `gpt-5.6-luna`. A price comparison of two products was routed to `gpt-6-astra` ($68.00 vs $88.00, which matches the catalogue).

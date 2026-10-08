@@ -239,7 +239,7 @@ The agent is split across four files next to `main.py` (the same pattern as HW3)
 | `ProductOption` | `product_id`, `name`, `garment_type`, `price` | Just enough to tell similar products apart when asking the shopper. |
 | `SearchHit` / `SearchResult` | hit: id, name, type, price, colours, `total_stock`, `size_stock`; result: `query`, `max_price`, `size`, `total_matches`, `products`, `message` | The model sees enough to summarise; `total_matches` vs shown count lets it say "showing 12 of 27" honestly. The filters are echoed back. |
 | `SimilarItemsResult` | `LookupResult` + `size`, `alternatives` | In-stock alternatives for a sold-out product or size. |
-| `AuditEntry` | `timestamp`, `run_id`, `event`, `model`, `tool`, `args`, `result`, `stop_reason`, `tool_calls` | Short, structured, privacy-safe audit rows (see Audit trail). |
+| `AuditEntry` | `timestamp`, `run_id`, `event`, `model`, `tool`, `args`, `result`, `stop_reason`, `tool_calls`, `requests`, `input_tokens`, `output_tokens`, `total_tokens` | Short, structured, privacy-safe audit rows. Token counts per run make cost and routing measurable (see Audit trail). |
 
 ## Tools and abilities
 
@@ -276,7 +276,9 @@ All tools live in `backend/tools.py` and are registered with the agent (`TOOLS`)
   - it contains a "harder" word (compare, vs, better, recommend, suggest, gift, similar, alternative, budget, which one…),
   - it combines two or more constraint types (price, size, colour).
 
-  Everything else goes to `gpt-5.6-luna`. If astra fails with an HTTP error, the run is retried once on luna. The model used is returned, saved, and shown under each bot reply as "answered by …".
+  Everything else goes to `gpt-5.6-luna`. If astra fails with an HTTP error, the run is retried once on luna.
+
+  The model used is returned in `ChatReply.model`, saved with the reply, and logged with its token counts in the audit trail. The "answered by …" tag under bot replies is a development aid: it shows only on the Vite dev server (`import.meta.env.DEV`) and is left out of production builds.
 - **Memory and page context:** see Customer memory.
 - **Frontend helpers:** suggested question chips (general ones, or product-specific ones on a product page), stock badges, and category filters. See `usability.md` and `design.md`.
 
@@ -400,11 +402,25 @@ A logged-in shopper asking "what is my email address?" got only their own.
 - **Entries:**
   - **`tool_call`**, one per tool call: `timestamp`, `run_id`, `model`, `tool`, `args` (≤120 chars) and `result` (≤160 chars). The result is a summary such as status, product id, matches and message.
   - **`run_end`**, one per run: `stop_reason` (`final answer`, `usage limit` or `error`), the `model` used, the number of `tool_calls`, and for errors a short type/status such as `ModelHTTPError 500`.
+  - **Token usage** on every `run_end`, read from PydanticAI's run usage: `requests`, `input_tokens`, `output_tokens` and `total_tokens`. Entries written before token logging was added have these as `null`.
 - **Never logged:** emails (redacted by regex), passwords, tokens, the API key, or the shopper's message text. Only tool arguments the model chose (e.g. `{"query": "navy crewneck"}`) appear.
 - **Stdout:** tool calls are also printed as `[tool] name(args) -> result` lines in the uvicorn log.
-- **Tested:** all three stop reasons are recorded, and the file was confirmed valid with no `@` or "password" anywhere in it.
-  - `usage limit`: forced with a 1-request cap.
-  - `error`: a simulated gpt-6-astra HTTP 500, which then fell back to luna.
+- **History of this file:** the code only appends. The file was edited by hand once, at the project owner's request, to remove two forced test runs: a 1-request cap and a made-up model name.
+- **Tested:** these entries are in the file now. It is a valid JSON array with no `@` or "password" anywhere in it.
+  - **Real chats through the UI, with token counts.** All are `final answer`.
+
+    | Chat | Run | Tool calls | Model | Tokens (in / out / total) |
+    |---|---|---|---|---|
+    | "what hoodies do you have?" on Home | `23add3e3a9d2` | `search_products({"query": "hoodie"})` | gpt-5.6-luna | 4,425 / 117 / 4,542 |
+    | "Is the Basic Hoodie Big Yale in stock in size M?" | `12aa1780c490` | `get_product_stock` (size M) | gpt-5.6-luna | 3,939 / 59 / 3,998 |
+    | "What does the Saybrook Logo T Shirt look like?" | `b6c533e3152e` | `get_product_description` | gpt-5.6-luna | 3,830 / 86 / 3,916 |
+    | "Do you have this in XL?" on the Baseball Left Chest Crewneck page (XL is 0 in stock) | `fd8c5f61d347` | `get_product_stock` (XL), then `find_similar_items` (XL) | gpt-5.6-luna | 6,584 / 187 / 6,771 |
+    | "In one sentence, compare the prices of the Basic Hoodie Big Yale and the Champion Full Zip Hood." | `5b601806407c` | `get_product_price` x2 | gpt-6-astra | 3,726 / 90 / 3,816 |
+
+    The `app_check.html` run added three more: `0a7b89656ad3`, `c988f7e3ae89` and `987ec831048f`.
+  - **`error` from the provider's content filter.** Run `ea7b6d7b7c47`, result `ModelHTTPError 400 content_filter`: an "ignore all previous instructions" message the gateway blocked; the shopper got the polite fallback reply. Run `c18409220f35` is the same probe from before that fallback existed, logged as plain `ModelHTTPError 400`.
+  - **`error` from a model outage.** Run `95c18197b25e`, `ModelHTTPError 500` on gpt-6-astra. This was a simulated outage (a stand-in model that raises HTTP 500). The automatic retry on luna is run `742c9ab132ac`.
+  - **`usage limit`:** handled in code (polite reply, `stop_reason: "usage limit"`), but there's no such entry in the file now, because no real chat has hit the 6-request cap.
 
 ## Specs
 
@@ -413,6 +429,8 @@ A logged-in shopper asking "what is my email address?" got only their own.
 | Normal model | `gpt-5.6-luna` (Chat Completions) | `agent.MODEL` / env `MODEL` |
 | Harder model | `gpt-6-astra` (Responses API); retried once on luna if it fails | `agent.HARD_MODEL` / env `HARD_MODEL`, `route_model()` |
 | Agent loop limit | `request_limit=6`, `tool_calls_limit=8` per run; over the limit, the shopper gets a polite "ask in a simpler way" reply | `agent.MAX_REQUESTS`, `MAX_TOOL_CALLS` |
+| Token usage | logged per run (`requests`, input/output/total tokens) in the audit trail | `agent._run_once()` |
+| "answered by" tag | development only (`npm run dev`); hidden in production builds | `ChatPanel.tsx` (`import.meta.env.DEV`) |
 | Search results | 12 cards max per reply (`total_matches` reported) | `tools.MAX_SEARCH_RESULTS` |
 | Ambiguous-name options | 8 max | `tools.MAX_OPTIONS` |
 | Similar items | 4 max, in stock only | `tools.MAX_SIMILAR` |

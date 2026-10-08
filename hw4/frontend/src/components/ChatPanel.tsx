@@ -6,6 +6,9 @@ import Patch from './Patch'
 
 type Message = { role: 'user' | 'assistant'; content: string; products?: ChatCard[]; question?: string; model?: string | null }
 
+// The "answered by" routing tag is a development aid: shown by `npm run dev`, left out of production builds.
+const SHOW_MODEL_TAG = import.meta.env.DEV
+
 const WELCOME: Message = { role: 'assistant', content: 'Hi! Ask me about our Yale gear.' }
 
 const GENERAL_CHIPS = ['What hoodies do you have?', 'Gifts under $40', "What's in stock in size M?", 'Anything for Saybrook?']
@@ -108,7 +111,7 @@ export default function ChatPanel({ open, onOpenChange, onResults }: Props) {
                 Show {m.products.length} product{m.products.length > 1 ? 's' : ''} on the page
               </button>
             ) : null}
-            {m.model ? <span className="answered-by">answered by {m.model}</span> : null}
+            {SHOW_MODEL_TAG && m.model ? <span className="answered-by">answered by {m.model}</span> : null}
           </div>
         ))}
         {sending && <div className="chat-message assistant typing">Thinking…</div>}
