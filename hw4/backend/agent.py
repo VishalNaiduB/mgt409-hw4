@@ -42,8 +42,8 @@ LIMIT_REPLY = "Sorry, that question needed more steps than I'm allowed. Could yo
 FILTERED_REPLY = "I can only help with Campus Customs shopping. Ask me about our Yale gear, sizes, prices or stock!"
 
 
-COMPLEX_WORDS = ("compare", "comparison", "difference", " vs", "versus", "better", "recommend", "suggest", "gift",
-                 "present", "outfit", "similar", "alternative", "instead", "matching", "match with", "budget",
+COMPLEX_WORDS = ("compare", "comparison", "difference", " vs", "versus", "better", "recommend", "suggest",
+                 "outfit", "similar", "alternative", "instead", "matching", "match with",
                  "which one", "which should", "help me choose", "help me pick", "both", "each of")
 CONSTRAINTS = {
     "price": re.compile(r"\$\s?\d|\bunder\b|\bbelow\b|\bcheap|\bless than\b|\bbudget\b"),

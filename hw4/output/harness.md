@@ -273,10 +273,10 @@ All tools live in `backend/tools.py` and are registered with the agent (`TOOLS`)
 - **Model routing:** `route_model()` in `agent.py` picks the model before each run. A message goes to `gpt-6-astra` if any of these hold:
   - it is longer than 220 characters,
   - it has two or more question marks,
-  - it contains a "harder" word (compare, vs, better, recommend, suggest, gift, similar, alternative, budget, which one…),
+  - it contains a "harder" word (compare, vs, better, recommend, suggest, similar, alternative, which one…),
   - it combines two or more constraint types (price, size, colour).
 
-  Everything else goes to `gpt-5.6-luna`. If astra fails with an HTTP error, the run is retried once on luna.
+  Everything else goes to `gpt-5.6-luna`, including single-filter searches like "Gifts under $40" (one price constraint). If astra fails with an HTTP error, the run is retried once on luna.
 
   The model used is returned in `ChatReply.model`, saved with the reply, and logged with its token counts in the audit trail. The "answered by …" tag under bot replies is a development aid: it shows only on the Vite dev server (`import.meta.env.DEV`) and is left out of production builds.
 - **Memory and page context:** see Customer memory.
@@ -405,9 +405,12 @@ A logged-in shopper asking "what is my email address?" got only their own.
   - **Token usage** on every `run_end`, read from PydanticAI's run usage: `requests`, `input_tokens`, `output_tokens` and `total_tokens`. Entries written before token logging was added have these as `null`.
 - **Never logged:** emails (redacted by regex), passwords, tokens, the API key, or the shopper's message text. Only tool arguments the model chose (e.g. `{"query": "navy crewneck"}`) appear.
 - **Stdout:** tool calls are also printed as `[tool] name(args) -> result` lines in the uvicorn log.
-- **History of this file:** the code only appends. The file was edited by hand once, at the project owner's request, to remove two forced test runs: a 1-request cap and a made-up model name.
+- **Deliberate tests in the file:** two runs exercise the stop-reason handling.
+  - Run `ec9a00f3907c` was run with `request_limit=1`, so the agent stopped after its first tool call with `stop_reason: "usage limit"`. That shows the usage-limit path works.
+  - Run `918ad2eaa4ec` used an invalid model name (`no-such-model`) to try to force an error. The Portkey gateway answered anyway, so that run ended with `final answer`.
+  - The `error` stop reason is shown by the content-filter runs and the simulated HTTP 500 run below.
 - **Tested:** these entries are in the file now. It is a valid JSON array with no `@` or "password" anywhere in it.
-  - **Real chats through the UI, with token counts.** All are `final answer`.
+  - **Scripted test runs at 03:00 UTC, with token counts.** A Playwright test script sent each question through `POST /api/chat`; these were not chats by a person. All ended with `final answer`.
 
     | Chat | Run | Tool calls | Model | Tokens (in / out / total) |
     |---|---|---|---|---|
@@ -417,10 +420,15 @@ A logged-in shopper asking "what is my email address?" got only their own.
     | "Do you have this in XL?" on the Baseball Left Chest Crewneck page (XL is 0 in stock) | `fd8c5f61d347` | `get_product_stock` (XL), then `find_similar_items` (XL) | gpt-5.6-luna | 6,584 / 187 / 6,771 |
     | "In one sentence, compare the prices of the Basic Hoodie Big Yale and the Champion Full Zip Hood." | `5b601806407c` | `get_product_price` x2 | gpt-6-astra | 3,726 / 90 / 3,816 |
 
-    The `app_check.html` run added three more: `0a7b89656ad3`, `c988f7e3ae89` and `987ec831048f`.
+    The scripted `app_check.html` run at 03:01 added three more: `0a7b89656ad3`, `c988f7e3ae89` and `987ec831048f`.
+  - **Chats in the real browser UI** (the in-app browser, clicking and typing in the chat panel):
+    - At 03:05, `b7648e4b421b`: a hoodie search typed in a browser by hand (no test script was running then), `search_products({"query": "hoodie"})`, on gpt-5.6-luna, 5,615 tokens.
+    - For the usability screenshots, `46aa098617d3`: the "Gifts under $40" chip, `search_products({"query": "", "max_price": 40})`, on gpt-5.6-luna, 4,467 / 127 / 4,594 tokens.
+    - `fd0a607ded13`: "How much is the Basic Hoodie Big Yale?", on gpt-5.6-luna, 3,778 / 46 / 3,824 tokens.
+    - `e7b14cc2a92e`: a price comparison of two products, on gpt-6-astra with two `get_product_price` calls, 3,726 / 90 / 3,816 tokens.
   - **`error` from the provider's content filter.** Run `ea7b6d7b7c47`, result `ModelHTTPError 400 content_filter`: an "ignore all previous instructions" message the gateway blocked; the shopper got the polite fallback reply. Run `c18409220f35` is the same probe from before that fallback existed, logged as plain `ModelHTTPError 400`.
   - **`error` from a model outage.** Run `95c18197b25e`, `ModelHTTPError 500` on gpt-6-astra. This was a simulated outage (a stand-in model that raises HTTP 500). The automatic retry on luna is run `742c9ab132ac`.
-  - **`usage limit`:** handled in code (polite reply, `stop_reason: "usage limit"`), but there's no such entry in the file now, because no real chat has hit the 6-request cap.
+  - **`usage limit`:** run `ec9a00f3907c`, the deliberate `request_limit=1` test above. No ordinary chat has hit the real 6-request cap.
 
 ## Specs
 

@@ -52,28 +52,32 @@ Four improvements to the Campus Customs shop: two on the frontend and two in the
 **What we added**
 - A small router in `agent.py` picks the model before each run.
   - **Simple lookups** go to `gpt-5.6-luna`: one product's price or stock, greetings, single searches.
-  - **Harder multi-step questions** go to `gpt-6-astra`: comparisons, recommendations, gift ideas, alternatives, or a message combining several constraints like budget, size and colour.
+  - **Harder multi-step questions** go to `gpt-6-astra`: comparisons, recommendations, "something similar" / alternatives, or a message combining two or more constraints (budget, size, colour).
+  - A single filter, such as a budget in "Gifts under $40", stays on `gpt-5.6-luna`.
 - Each reply records which model answered:
   - saved in a new `model` column on `chat_messages` (added at backend startup if missing),
   - logged with its token usage in `output/audit_trail.json`.
 - **The "answered by <model>" tag under each bot reply is for development only.** It shows when the site runs on the Vite dev server (`npm run dev`), which is where the screenshots below were taken. It's left out of production builds (`import.meta.env.DEV`), so real shoppers don't see it.
 
 **Why it helps, and what the logs show**
-- **Routing sends most questions to luna.** Of the 8 real chats run through the UI with token logging, 7 went to gpt-5.6-luna (searches, stock, description and a sold-out-alternatives question). 1, a price comparison, went to gpt-6-astra.
-- **No token saving is measured.**
-  - The luna runs used 3,916 to 6,771 total tokens.
-  - The single-lookup luna runs averaged about 4,240.
-  - The astra comparison used 3,816.
+- **Browser chats behind the screenshots** (typed or tapped in the real browser UI, logged in `output/audit_trail.json`):
 
-  The logs don't show astra using more tokens per run, so we don't claim a token saving. Any cost or speed benefit would come from luna's lower per-token price or latency, which these logs don't measure.
-- **What it does give us:** a clear, logged decision about which model handled each question. The "answered by" tag in development makes that easy to check while testing.
+  | Run | Question | Model | Tokens (in / out / total) |
+  |---|---|---|---|
+  | `46aa098617d3` | "Gifts under $40" chip | gpt-5.6-luna | 4,467 / 127 / 4,594 |
+  | `fd0a607ded13` | "How much is the Basic Hoodie Big Yale?" | gpt-5.6-luna | 3,778 / 46 / 3,824 |
+  | `e7b14cc2a92e` | Price comparison of two hoodies | gpt-6-astra | 3,726 / 90 / 3,816 |
+
+- **Routing sends simple questions to luna.** Across the 12 runs with token counts (the 4 browser chats plus the scripted test runs at 03:00-03:01), 10 went to gpt-5.6-luna. The 2 that went to gpt-6-astra were both price comparisons.
+- **No token or cost saving is measured.** Token counts per run are similar on both models: luna runs with one tool call used 3,824-5,615 tokens, and both astra comparisons used 3,816. So we don't claim a token saving. Any cost or speed benefit would come from luna's per-token price or latency, which these logs don't measure.
+- **What it does give us:** a clear, logged decision about which model handled each question, with its token cost. The "answered by" tag in development makes that easy to check while testing.
 
 ## Screenshots
 
 ### Suggested question chips
 ![Suggested question chips](app_check_images/usability_chips.png)
 
-Tapping the "Gifts under $40" chip: the agent searched with `max_price=40` and reported 25 matches. All 12 cards shown are $32.00, the cheapest price in the catalogue.
+Taken in the real browser UI (the in-app browser at about 700px wide, so the chat opens as a full-width sheet over the cards). Tapping the "Gifts under $40" chip ran `46aa098617d3`: gpt-5.6-luna called `search_products` with `max_price: 40` and reported 25 matches. All 12 cards it put on the page are $32.00, the cheapest price in the catalogue.
 
 ### Stock badges
 ![Stock badges](app_check_images/usability_stock_badges.png)
@@ -88,4 +92,4 @@ Baseball Left Chest Crewneck. The inventory table has XS 0, S 15, M 5, L 25, XL 
 ### Model routing tag
 ![Answered by tag](app_check_images/usability_model_routing.png)
 
-Taken on the dev server, where the tag is shown. A single price lookup was answered by `gpt-5.6-luna`. A price comparison of two products was routed to `gpt-6-astra` ($68.00 vs $88.00, which matches the catalogue).
+Taken in the real browser UI on the dev server, where the tag is shown. The price lookup (run `fd0a607ded13`) was answered by `gpt-5.6-luna`. The comparison (run `e7b14cc2a92e`) was routed to `gpt-6-astra` and answered $68.00 vs $88.00, which matches the catalogue.

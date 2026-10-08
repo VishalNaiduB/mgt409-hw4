@@ -233,7 +233,7 @@ None needed
 
 Nothing to fix. The restyle looked like a real store and nothing broke.
 
-## Problem 11: Site testing
+## Problem 11: Site testing (app check)
 
 ### Prompt
 
@@ -274,7 +274,7 @@ None needed
 
 No follow-up needed. The audit trail grows the way I asked, and the harness reads end to end.
 
-## Problem 13: Push to GitHub
+## Problem 13: Push to GitHub and submit the URL
 
 ### Prompt
 
